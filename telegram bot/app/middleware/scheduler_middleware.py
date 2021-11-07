@@ -1,6 +1,6 @@
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.types import Message
-from app.middleware.scheduler import Scheduler
+from ..middleware.scheduler import Scheduler
 
 
 class SchedulerMiddleware(BaseMiddleware):

@@ -1,5 +1,5 @@
 from aiogram import Dispatcher, types
-from app.middleware.scheduler import Scheduler
+from ..middleware.scheduler import Scheduler
 
 
 async def star_scheduler(message: types.Message, scheduler: Scheduler):

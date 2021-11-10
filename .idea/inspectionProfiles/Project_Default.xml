@@ -12,6 +12,8 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="dict.add" />
+          <option value="typing.Coroutine.__setitem__" />
+          <option value="str._session" />
         </list>
       </option>
     </inspection_tool>

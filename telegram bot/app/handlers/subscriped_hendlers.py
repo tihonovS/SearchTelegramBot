@@ -1,9 +1,11 @@
 from aiogram import Dispatcher, types
+from aiogram.dispatcher import FSMContext
+
 from ..middleware.scheduler import Scheduler
 
 
-async def star_scheduler(message: types.Message, scheduler: Scheduler):
-    await scheduler.run(message.from_user.id)
+async def star_scheduler(message: types.Message, scheduler: Scheduler, state: FSMContext):
+    await scheduler.run(message.from_user.id, state)
 
 
 async def stop_schedule(message: types.Message, scheduler: Scheduler):

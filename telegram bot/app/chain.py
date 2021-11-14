@@ -17,9 +17,9 @@ class AbstractHandlerChain(ABC):
         return handler
 
     @abstractmethod
-    async def handle(self, request: dict, chat_id):
+    async def handle(self, state: FSMContext, chat_id):
         if self._next_handler:
-            return await self._next_handler.handle(request, chat_id)
+            return await self._next_handler.handle(state, chat_id)
 
         return None
 
@@ -37,4 +37,4 @@ class AbstractHandlerChain(ABC):
 
 
 async def call_chain(chat_id, handler: AbstractHandlerChain, state: FSMContext):
-    await handler.handle(await state.get_data(), chat_id)
+    await handler.handle(state, chat_id)

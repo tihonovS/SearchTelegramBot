@@ -17,12 +17,12 @@ class Scheduler:
         if chat_id not in self.job_map:
             job = aioschedule.every(5).seconds.do(chain.call_chain, chat_id, self.handler, state)
             self.job_map[chat_id] = job
-            await self.bot.send_message(chat_id, "you have subscribed")
+            await self.bot.send_message(chat_id, "вы подписались на показ объявлений")
             while True:
                 await aioschedule.run_pending()
                 await asyncio.sleep(1)
         else:
-            await self.bot.send_message(chat_id, "you have already subscribed")
+            await self.bot.send_message(chat_id, "вы уже подписаны на показ объявлений")
 
     async def stop(self, chat_id):
         job_map = self.job_map

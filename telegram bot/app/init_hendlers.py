@@ -8,7 +8,6 @@ from loader import dp, callback_numbers
 
 async def set_commands(bot: Bot):
     commands = [
-        types.BotCommand(command="/start", description="начать общение с ботом"),
         types.BotCommand(command="/add_query", description="добавить запрос на сайт:"),
         types.BotCommand(command="/storage", description="текущие запросы"),
         types.BotCommand(command="/start_scheduler", description="подписаться на показ объявлений"),
@@ -39,7 +38,8 @@ async def view_storage(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands="start", state="*")
 async def send_welcome(message: types.Message):
-    await message.reply("Привет, я телеграм бот для поиска на сайтах и показа последних объявлений")
+    await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах." +
+                         " Для начала ввода первого запроса нажмите /add_query")
 
 
 @dp.message_handler(commands="start_scheduler", state="*")

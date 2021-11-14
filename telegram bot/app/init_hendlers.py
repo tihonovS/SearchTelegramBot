@@ -1,26 +1,40 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
-import json
 
+from app.chain import AbstractHandlerChain
 from app.middleware.scheduler import Scheduler
-from loader import dp
+from loader import dp, callback_numbers
 
 
 async def set_commands(bot: Bot):
     commands = [
-        types.BotCommand(command="/start_scheduler", description="подписаться на показ объявлений"),
-        types.BotCommand(command="/stop_scheduler", description="отписаться от показа объявлений"),
-        types.BotCommand(command="/kufar", description="ввести запрос на kufar"),
-        types.BotCommand(command="/storage", description="текущие запросы"),
         types.BotCommand(command="/start", description="начать общение с ботом"),
+        types.BotCommand(command="/add_query", description="добавить запрос на сайт:"),
+        types.BotCommand(command="/storage", description="текущие запросы"),
+        types.BotCommand(command="/start_scheduler", description="подписаться на показ объявлений"),
+        types.BotCommand(command="/stop_scheduler", description="отписаться от показа объявлений")
     ]
     await bot.set_my_commands(commands)
+
+
+@dp.message_handler(commands="add_query", state="*")
+async def add_query(message: types.Message):
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    buttons = []
+    for clazz in AbstractHandlerChain.__subclasses__():
+        inline_button = types.InlineKeyboardButton(
+            text=clazz.site_name(),
+            callback_data=callback_numbers.new(action=clazz.site_name())
+        )
+        buttons.append(inline_button)
+    keyboard.add(*buttons)
+    await message.answer("Выберите сайт", reply_markup=keyboard)
 
 
 @dp.message_handler(commands="storage", state="*")
 async def view_storage(message: types.Message, state: FSMContext):
     data_ = await state.get_data()
-    await message.answer(json.dumps(data_))
+    await message.answer(f"{data_}")
 
 
 @dp.message_handler(commands="start", state="*")

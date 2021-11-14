@@ -23,6 +23,11 @@ class AbstractHandlerChain(ABC):
 
         return None
 
+    @staticmethod
+    @abstractmethod
+    def site_name():
+        pass
+
     async def get_request(self, query: str, params=None) -> dict:
         if params is None:
             params = {}

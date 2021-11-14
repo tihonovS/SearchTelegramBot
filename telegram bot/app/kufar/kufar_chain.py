@@ -9,6 +9,10 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    @staticmethod
+    def site_name():
+        return "kufar.by"
+
     async def handle(self, request: dict, chat_id):
         if "kufar" in request:
             kufar_array = request.get("kufar")

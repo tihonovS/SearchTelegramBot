@@ -1,7 +1,7 @@
 {
     "932954788": {
         "932954788": {
-            "state": null,
+            "state": "KufarState:waiting_for_query",
             "data": {
                 "kufar": [
                     {
@@ -9,6 +9,28 @@
                     },
                     {
                         "query": "пролд"
+                    },
+                    {
+                        "query": "qweq"
+                    },
+                    {
+                        "query": "Вров"
+                    }
+                ]
+            },
+            "bucket": {}
+        }
+    },
+    "563516419": {
+        "563516419": {
+            "state": null,
+            "data": {
+                "kufar": [
+                    {
+                        "query": "Платье"
+                    },
+                    {
+                        "query": "Обувь"
                     }
                 ]
             },

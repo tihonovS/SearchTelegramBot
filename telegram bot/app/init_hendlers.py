@@ -39,7 +39,7 @@ async def view_storage(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands="start", state="*")
 async def send_welcome(message: types.Message):
-    await message.reply("Hi i'm bot")
+    await message.reply("Привет, я телеграм бот для поиска на сайтах и показа последних объявлений")
 
 
 @dp.message_handler(commands="start_scheduler", state="*")

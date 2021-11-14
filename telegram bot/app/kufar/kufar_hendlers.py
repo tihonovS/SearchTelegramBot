@@ -12,6 +12,7 @@ class KufarState(StatesGroup):
 
 @dp.callback_query_handler(callback_numbers.filter(action=KufarHandlerChain.site_name()))
 async def kufar_start(call: types.CallbackQuery, callback_data: dict):
+    await call.message.edit_reply_markup(reply_markup=None)
     await call.message.answer(f"что будем искать на {callback_data['action']}")
     await KufarState.waiting_for_query.set()
     await call.answer()

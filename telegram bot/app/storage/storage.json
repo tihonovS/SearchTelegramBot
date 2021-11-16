@@ -12,7 +12,8 @@
                         "query": "xd design",
                         "last_request_time": "2021-11-14T09:50:26Z"
                     }
-                ]
+                ],
+                "scheduler_job_id": "4420498a0d22428c817e531457db23ef"
             },
             "bucket": {}
         }
@@ -30,7 +31,8 @@
                         "query": "Valentine",
                         "last_request_time": "2021-11-12T16:00:56Z"
                     }
-                ]
+                ],
+                "scheduler_job_id": "64f90e32aa9d483e8cfa89fababd1a26"
             },
             "bucket": {}
         }

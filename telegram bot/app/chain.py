@@ -1,7 +1,8 @@
-from aiogram.dispatcher import FSMContext
 from abc import ABC, abstractmethod
 from aiogram import Bot
 import aiohttp
+
+from app.storage.custom_json_storage import CustomJSONStorage
 
 
 class AbstractHandlerChain(ABC):
@@ -17,9 +18,9 @@ class AbstractHandlerChain(ABC):
         return handler
 
     @abstractmethod
-    async def handle(self, state: FSMContext, chat_id):
+    async def handle(self, storage: CustomJSONStorage, chat_id, user_id):
         if self._next_handler:
-            return await self._next_handler.handle(state, chat_id)
+            return await self._next_handler.handle(storage, chat_id, user_id)
 
         return None
 
@@ -36,5 +37,5 @@ class AbstractHandlerChain(ABC):
                 return await resp.json()
 
 
-async def call_chain(chat_id, handler: AbstractHandlerChain, state: FSMContext):
-    await handler.handle(state, chat_id)
+async def call_chain(chat_id, user_id, handler: AbstractHandlerChain, storage: CustomJSONStorage):
+    await handler.handle(storage, chat_id, user_id)

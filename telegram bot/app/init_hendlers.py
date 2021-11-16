@@ -2,16 +2,13 @@ from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
 
 from app.chain import AbstractHandlerChain
-from app.middleware.scheduler import Scheduler
 from loader import dp, callback_numbers
 
 
 async def set_commands(bot: Bot):
     commands = [
         types.BotCommand(command="/add_query", description="добавить запрос на сайт:"),
-        types.BotCommand(command="/storage", description="текущие запросы"),
-        types.BotCommand(command="/start_scheduler", description="подписаться на показ объявлений"),
-        types.BotCommand(command="/stop_scheduler", description="отписаться от показа объявлений")
+        types.BotCommand(command="/storage", description="текущие запросы")
     ]
     await bot.set_my_commands(commands)
 
@@ -40,13 +37,3 @@ async def view_storage(message: types.Message, state: FSMContext):
 async def send_welcome(message: types.Message):
     await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах." +
                          " Для начала ввода первого запроса нажмите /add_query")
-
-
-@dp.message_handler(commands="start_scheduler", state="*")
-async def star_scheduler(message: types.Message, scheduler: Scheduler, state: FSMContext):
-    await scheduler.run(message.from_user.id, state)
-
-
-@dp.message_handler(commands="stop_scheduler", state="*")
-async def stop_schedule(message: types.Message, scheduler: Scheduler):
-    await scheduler.stop(message.from_user.id)

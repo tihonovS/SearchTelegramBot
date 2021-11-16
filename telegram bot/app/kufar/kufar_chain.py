@@ -1,9 +1,9 @@
 import operator
 from datetime import datetime
 from aiogram import Bot
-from aiogram.dispatcher import FSMContext
 
 import app.chain as abstract_chain
+from app.storage.custom_json_storage import CustomJSONStorage
 
 
 class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
@@ -14,19 +14,20 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
     def site_name():
         return "kufar.by"
 
-    async def handle(self, state: FSMContext, chat_id):
-        request = await state.get_data()
+    async def handle(self, storage: CustomJSONStorage, chat_id, user_id):
+        request = await storage.get_data(chat=chat_id, user=user_id)
         if "kufar" in request:
             kufar_array = request.get("kufar")
             for kufar in kufar_array:
-                kufar_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))
-                if kufar_request:
-                    kufar['last_request_time'] = kufar_request[0].get('time')
-                    for item in kufar_request:
-                        await self.bot.send_message(chat_id, item.get('link'))
+                if "subscribed" in kufar:
+                    kufar_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))
+                    if kufar_request:
+                        kufar['last_request_time'] = kufar_request[0].get('time')
+                        for item in kufar_request:
+                            await self.bot.send_message(chat_id, item.get('link'))
 
-            await state.set_data(request)
-        await super().handle(state, chat_id)
+            await storage.set_data(chat=chat_id, user=user_id, data=request)
+        await super().handle(storage, chat_id, user_id)
 
     async def search_request(self, query, date: datetime) -> list:
         saved_time = datetime.now()

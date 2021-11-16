@@ -2,7 +2,7 @@ from os import getenv
 from sys import exit
 import pathlib
 import logging
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot, Dispatcher
 from aiogram.utils.callback_data import CallbackData
 
@@ -17,3 +17,6 @@ bot = Bot(bot_token)
 dp = Dispatcher(bot, storage=CustomJSONStorage(pathlib.Path("app/storage/storage.json")))
 
 callback_numbers = CallbackData("fabnum", "action")
+callback_scheduler = CallbackData("key", "action", 'data', sep='::')
+
+async_scheduler = AsyncIOScheduler()

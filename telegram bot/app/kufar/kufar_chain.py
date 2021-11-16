@@ -24,7 +24,8 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
                     if kufar_request:
                         kufar['last_request_time'] = kufar_request[0].get('time')
                         for item in kufar_request:
-                            await self.bot.send_message(chat_id, item.get('link'))
+                            if 'link' in item:
+                                await self.bot.send_message(chat_id, item.get('link'))
 
             await storage.set_data(chat=chat_id, user=user_id, data=request)
         await super().handle(storage, chat_id, user_id)
@@ -54,4 +55,6 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
                 last_response_elem = sorted(response_elements, key=operator.itemgetter('list_time'), reverse=True)[0]
                 return [{'time': last_response_elem.get('list_time'), 'link': last_response_elem.get('ad_link')}]
         else:
+            if not date:
+                return [{'time': saved_time}]
             return []

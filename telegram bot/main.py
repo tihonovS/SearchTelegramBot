@@ -3,8 +3,10 @@ from aiogram.utils import executor
 
 from app import init_hendlers
 from app.chain import call_chain
+from app.middleware.query_id_middlervare import QueryIdMiddleware
 from loader import bot, dp, async_scheduler
 from app.kufar import kufar_hendlers
+from app.storage import storage_handler
 from app.kufar import kufar_chain
 
 
@@ -20,7 +22,9 @@ async def on_startup(dispatcher: Dispatcher):
             func_args = [key, key1, chain, dispatcher.storage]
             job = async_scheduler.add_job(call_chain, 'interval', hours=1, args=func_args)
             value1['data']['scheduler_job_id'] = job.id
-
+            if "last_query_id" not in value1['data']:
+                value1['data']['last_query_id'] = 0
+    dispatcher.setup_middleware(QueryIdMiddleware())
     async_scheduler.start()
 
     await init_hendlers.set_commands(bot)

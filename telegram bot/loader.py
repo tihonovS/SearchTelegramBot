@@ -16,7 +16,7 @@ if not bot_token:
 bot = Bot(bot_token)
 dp = Dispatcher(bot, storage=CustomJSONStorage(pathlib.Path("app/storage/storage.json")))
 
-callback_numbers = CallbackData("fabnum", "action")
-callback_scheduler = CallbackData("key", "action", 'data', sep='::')
+callback_action = CallbackData("fabnum", "action")
+callback_action_with_data = CallbackData("key", "action", 'data', sep='::')
 
 async_scheduler = AsyncIOScheduler()

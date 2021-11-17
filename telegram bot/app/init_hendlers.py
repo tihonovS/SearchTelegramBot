@@ -1,5 +1,7 @@
 from aiogram import Bot, types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ParseMode
+from aiogram.utils.markdown import text, bold
 
 from app.chain import AbstractHandlerChain
 from loader import dp, callback_numbers
@@ -29,8 +31,15 @@ async def add_query(message: types.Message):
 
 @dp.message_handler(commands="storage", state="*")
 async def view_storage(message: types.Message, state: FSMContext):
-    data_ = await state.get_data()
-    await message.answer(f"{data_}")
+    data_: dict = await state.get_data()
+    msg = "Ваши запросы: \n"
+    for site_key, site_value in data_.items():
+        if isinstance(site_value, list):
+            value_text = ""
+            for value in site_value:
+                value_text += f"       {value['query']} \n"
+            msg += text(f" {bold(site_key)}", value_text, sep="\n")
+    await message.answer(msg, parse_mode=ParseMode.MARKDOWN_V2)
 
 
 @dp.message_handler(commands="start", state="*")

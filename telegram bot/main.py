@@ -18,7 +18,7 @@ async def on_startup(dispatcher: Dispatcher):
     for key, value in dispatcher.storage.data.items():
         for key1, value1 in value.items():
             func_args = [key, key1, chain, dispatcher.storage]
-            job = async_scheduler.add_job(call_chain, 'interval', minutes=10, args=func_args)
+            job = async_scheduler.add_job(call_chain, 'interval', hours=1, args=func_args)
             value1['data']['scheduler_job_id'] = job.id
 
     async_scheduler.start()

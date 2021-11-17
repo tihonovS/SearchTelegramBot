@@ -265,3 +265,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Project
+/telegram bot/app/storage/storage.json

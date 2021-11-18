@@ -2,7 +2,13 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 import ast
 
+from aiogram.dispatcher.filters.state import StatesGroup, State
+
 from loader import dp, callback_action, callback_action_with_data
+
+
+class StorageState(StatesGroup):
+    edit_query_state = State()
 
 
 @dp.callback_query_handler(callback_action.filter(action="edit_store"))
@@ -46,32 +52,105 @@ async def choose_query_from_store(call: types.CallbackQuery, callback_data: dict
 @dp.callback_query_handler(callback_action_with_data.filter(action="choose_store_query"))
 async def select_action(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.message.delete()
-    data_ = ast.literal_eval(callback_data['data'])
+    callback_data_ = ast.literal_eval(callback_data['data'])
+    storage = await state.get_data()
+    query = get_query_by_site(callback_data_, storage)
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     inline_button_edit = types.InlineKeyboardButton(
-            text="редактировать запрос",
-            callback_data=callback_action_with_data.new(action="edit_store_query", data=data_)
+        text="редактировать запрос",
+        callback_data=callback_action_with_data.new(action="edit_store_query", data=callback_data_)
     )
-    inline_button_subscribe = types.InlineKeyboardButton(
-            text="подписаться на запрос",
-            callback_data=callback_action_with_data.new(action="edit_store_subscribe", data=data_)
-    )
-    inline_button_unsubscribe = types.InlineKeyboardButton(
+    if 'subscribed' in query and query['subscribed']:
+        inline_button_unsubscribe = types.InlineKeyboardButton(
             text="отписаться от запроса",
-            callback_data=callback_action_with_data.new(action="edit_store_unsubscribe", data=data_)
-    )
+            callback_data=callback_action_with_data.new(action="edit_store_unsubscribe", data=callback_data_)
+        )
+        keyboard.add(inline_button_unsubscribe)
+    else:
+        inline_button_subscribe = types.InlineKeyboardButton(
+            text="подписаться на запрос",
+            callback_data=callback_action_with_data.new(action="edit_store_subscribe", data=callback_data_)
+        )
+        keyboard.add(inline_button_subscribe)
+
     inline_button_delete = types.InlineKeyboardButton(
-            text="удалить запрос",
-            callback_data=callback_action_with_data.new(action="edit_store_delete", data=data_)
+        text="удалить запрос",
+        callback_data=callback_action_with_data.new(action="edit_store_delete", data=callback_data_)
     )
     keyboard.add(inline_button_edit)
-    keyboard.add(inline_button_subscribe)
-    keyboard.add(inline_button_unsubscribe)
     keyboard.add(inline_button_delete)
 
-    storage = await state.get_data()
-    query = list(filter(lambda i: i['query_id'] == data_['query_id'], storage['site'][data_['site']]))[0]
-    await call.message.answer(f"Выбранные параметры сайт-\"{data_['site']}\" запрос-\"{query['query']}\"",
+    await call.message.answer(f"Выбранные параметры сайт-\"{callback_data_['site']}\" запрос-\"{query['query']}\"",
                               reply_markup=keyboard)
     await call.answer()
+
+
+def get_query_by_site(callback_data_, storage):
+    query = list(filter(lambda i: i['query_id'] == callback_data_['query_id'], storage['site'][callback_data_['site']]))
+    return query[0]
+
+
+@dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_delete"))
+async def edit_store_delete(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    await call.message.delete_reply_markup()
+    storage = await state.get_data()
+    callback_data_ = ast.literal_eval(callback_data['data'])
+    query = get_query_by_site(callback_data_, storage)
+    site_: list = storage['site'][callback_data_['site']]
+    site_.remove(query)
+    await state.set_data(storage)
+    await call.message.answer(f"Запрос \"{query['query']}\" успешно удален")
+    await call.answer()
+
+
+@dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_unsubscribe"))
+async def edit_store_unsubscribe(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    await call.message.delete_reply_markup()
+    storage = await state.get_data()
+    callback_data_ = ast.literal_eval(callback_data['data'])
+    query = get_query_by_site(callback_data_, storage)
+    query['subscribed'] = False
+    await state.set_data(storage)
+    await call.message.answer(f"Подписка отменена на запрос \"{query['query']}\" ")
+    await call.answer()
+
+
+@dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_subscribe"))
+async def edit_store_subscribe(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    await call.message.delete_reply_markup()
+    storage = await state.get_data()
+    callback_data_ = ast.literal_eval(callback_data['data'])
+    query = get_query_by_site(callback_data_, storage)
+    query['subscribed'] = True
+    await state.set_data(storage)
+    await call.message.answer(f"Вы подписались на запрос \"{query['query']}\" ")
+    await call.answer()
+
+
+@dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_query"))
+async def edit_store_subscribe(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    await call.message.delete_reply_markup()
+
+    storage = await state.get_data()
+    callback_data_ = ast.literal_eval(callback_data['data'])
+    storage['edit_store_state'] = callback_data_
+    await state.set_data(storage)
+    await StorageState.edit_query_state.set()
+
+    await call.message.answer(f"Введите новый запрос")
+
+    await call.answer()
+
+
+@dp.message_handler(state=StorageState.edit_query_state)
+async def kufar_query(message: types.Message, state: FSMContext):
+    storage = await state.get_data()
+    site_ = storage['site']
+    edit_store_state_ = storage['edit_store_state']
+    query = get_query_by_site(edit_store_state_, storage)
+    query['query'] = message.text
+    del storage['edit_store_state']
+    await state.set_data(storage)
+    await state.reset_state(with_data=False)
+    await message.answer("Запрос отредактирован")

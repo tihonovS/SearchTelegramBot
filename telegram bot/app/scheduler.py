@@ -26,7 +26,7 @@ async def subscribe_on_query(call: types.CallbackQuery, callback_data: dict, sta
 
 async def add_scheduler_to_store(callback_data: dict, state: FSMContext):
     storage: dict = await state.get_data()
-    site: list = storage.get(callback_data.get('site'))
+    site: list = storage['site'].get(callback_data.get('site'))
     for item in site:
         if item.get('query_id') == callback_data.get('query_id'):
             item['subscribed'] = True

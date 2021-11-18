@@ -16,8 +16,9 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
 
     async def handle(self, storage: CustomJSONStorage, chat_id, user_id):
         request = await storage.get_data(chat=chat_id, user=user_id)
-        if "kufar" in request:
-            kufar_array = request.get("kufar")
+        site_ = request['site']
+        if KufarHandlerChain.site_name() in site_:
+            kufar_array = request.get(KufarHandlerChain.site_name())
             for kufar in kufar_array:
                 if "subscribed" in kufar:
                     kufar_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))

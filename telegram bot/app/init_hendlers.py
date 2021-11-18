@@ -33,7 +33,7 @@ async def add_query(message: types.Message):
 async def view_storage(message: types.Message, state: FSMContext):
     data_: dict = await state.get_data()
     msg = "Ваши запросы: \n"
-    for site_key, site_value in data_.items():
+    for site_key, site_value in data_['site'].items():
         if isinstance(site_value, list):
             value_text = ""
             for value in site_value:
@@ -57,6 +57,8 @@ async def send_welcome(message: types.Message, state: FSMContext):
     storage = await state.get_data()
     if "last_query_id" not in storage:
         storage['last_query_id'] = 0
+    if "site" not in storage:
+        storage['site'] = {}
     await state.set_data(storage)
     await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах." +
                          " Для начала ввода первого запроса нажмите /add_query")

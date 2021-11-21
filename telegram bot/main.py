@@ -22,8 +22,6 @@ async def on_startup(dispatcher: Dispatcher):
             func_args = [key, key1, chain, dispatcher.storage]
             job = async_scheduler.add_job(call_chain, 'interval', hours=1, args=func_args)
             value1['data']['scheduler_job_id'] = job.id
-            if "last_query_id" not in value1['data']:
-                value1['data']['last_query_id'] = 0
     dispatcher.setup_middleware(QueryIdMiddleware())
     async_scheduler.start()
 
@@ -31,6 +29,9 @@ async def on_startup(dispatcher: Dispatcher):
 
 
 async def on_shutdown(dispatcher: Dispatcher):
+    for key, value in dispatcher.storage.data.items():
+        for key1, value1 in value.items():
+            value1['state'] = None
     async_scheduler.shutdown()
 
 

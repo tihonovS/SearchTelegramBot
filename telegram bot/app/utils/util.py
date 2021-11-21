@@ -12,3 +12,22 @@ def delete_keys_from_dict(dictionary, keys):
             else:
                 modified_dict[key] = value  # or copy.deepcopy(value) if a copy is desired for non-dicts.
     return modified_dict
+
+
+def get_query(search_dict, query_id) -> dict:
+    for key, value in search_dict.items():
+
+        if key == "query_id" and value == query_id:
+            return search_dict
+
+        elif isinstance(value, dict):
+            result = get_query(value, query_id)
+            if result:
+                return result
+
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    result = get_query(item, query_id)
+                    if result:
+                        return result

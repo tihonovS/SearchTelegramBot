@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 import ast
 
-from loader import callback_action_with_data, dp
+from loader import callback_action_with_data, dp, async_scheduler
 
 
 def add_subscribe_keyboard(query_data: dict):
@@ -31,3 +31,17 @@ async def add_scheduler_to_store(callback_data: dict, state: FSMContext):
         if item.get('query_id') == callback_data.get('query_id'):
             item['subscribed'] = True
     await state.set_data(storage)
+
+
+async def scheduler_pause(state: FSMContext):
+    storage = await state.get_data()
+    if 'scheduler_job_id' in storage:
+        job = async_scheduler.get_job(storage['scheduler_job_id'])
+        job.pause()
+
+
+async def scheduler_resume(state: FSMContext):
+    storage = await state.get_data()
+    if 'scheduler_job_id' in storage:
+        job = async_scheduler.get_job(storage['scheduler_job_id'])
+        job.resume()

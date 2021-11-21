@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from app.kufar.kufar_chain import KufarHandlerChain
-from app.scheduler import add_subscribe_keyboard
+from app.scheduler import add_subscribe_keyboard, scheduler_resume
 from loader import dp, callback_action
 
 
@@ -21,17 +21,15 @@ async def kufar_start(call: types.CallbackQuery, callback_data: dict):
 
 @dp.message_handler(state=KufarState.waiting_for_query)
 async def kufar_query(message: types.Message, state: FSMContext):
-    data: dict = await state.get_data()
-    site_ = data['site']
-    # нужно добавить обязательный параметр query и query_id
-    if KufarHandlerChain.site_name() in site_:
-        site_.get(KufarHandlerChain.site_name()).append({"query": message.text, "query_id": data['last_query_id']})
-    else:
-        site_.update({KufarHandlerChain.site_name(): [{"query": message.text, "query_id": data['last_query_id']}]})
-
-    await state.set_data(data)
+    query_id = await KufarHandlerChain.add_query_to_storage(message.text, state)
     await state.reset_state(with_data=False)
+    await scheduler_resume(state)
     await message.answer(f"ваш запрос {message.text}",
                          reply_markup=add_subscribe_keyboard({"site": KufarHandlerChain.site_name(),
-                                                              'query_id': data['last_query_id']})
+                                                              'query_id': query_id})
                          )
+    link = await KufarHandlerChain(None).get_last_query(query_id, message.text, state)
+    link_message = "По вашему запросу ничего не найдено"
+    if link:
+        link_message = f"Последний найденный результат по вашему запросу \n {link}"
+    await message.answer(link_message)

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from aiogram import Bot
 import aiohttp
+from aiogram.dispatcher import FSMContext
 
 from app.storage.custom_json_storage import CustomJSONStorage
 
@@ -27,6 +28,11 @@ class AbstractHandlerChain(ABC):
     @staticmethod
     @abstractmethod
     def site_name():
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def add_query_to_storage(query: str, state: FSMContext) -> str:
         pass
 
     async def get_request(self, query: str, params=None) -> dict:

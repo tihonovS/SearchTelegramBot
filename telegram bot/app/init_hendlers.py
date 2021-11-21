@@ -5,18 +5,28 @@ from aiogram.utils.markdown import text, bold
 
 from app.chain import AbstractHandlerChain
 from loader import dp, callback_action
+from .scheduler import scheduler_resume, scheduler_pause
 
 
 async def set_commands(bot: Bot):
     commands = [
         types.BotCommand(command="/add_query", description="добавить запрос на сайт:"),
-        types.BotCommand(command="/storage", description="текущие запросы")
+        types.BotCommand(command="/storage", description="текущие запросы"),
+        types.BotCommand(command="/cancel", description="прерывает действие и возобновляет планировщик заданий")
     ]
     await bot.set_my_commands(commands)
 
 
+@dp.message_handler(commands="cancel", state="*")
+async def cancel(message: types.Message, state: FSMContext):
+    await state.set_state(None)
+    await scheduler_resume(state)
+    await message.answer("Действие прервано")
+
+
 @dp.message_handler(commands="add_query", state="*")
-async def add_query(message: types.Message):
+async def add_query(message: types.Message, state: FSMContext):
+    await scheduler_pause(state)
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     buttons = []
     for clazz in AbstractHandlerChain.__subclasses__():

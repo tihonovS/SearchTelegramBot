@@ -96,11 +96,13 @@ def get_query_by_site(callback_data_, storage):
 @dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_delete"))
 async def edit_store_delete(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.message.delete_reply_markup()
-    storage = await state.get_data()
+    storage: dict = await state.get_data()
     callback_data_ = ast.literal_eval(callback_data['data'])
     query = get_query_by_site(callback_data_, storage)
     site_: list = storage['site'][callback_data_['site']]
     site_.remove(query)
+    if len(site_) <= 0:
+        del storage['site'][callback_data_['site']]
     await state.set_data(storage)
     await scheduler_resume(state)
     await call.message.answer(f"Запрос \"{query['query']}\" успешно удален")
@@ -134,7 +136,7 @@ async def edit_store_subscribe(call: types.CallbackQuery, callback_data: dict, s
 
 
 @dp.callback_query_handler(callback_action_with_data.filter(action="edit_store_query"))
-async def edit_store_subscribe(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+async def edit_store_query(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.message.delete()
 
     storage = await state.get_data()

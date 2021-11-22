@@ -82,7 +82,8 @@ async def select_action(call: types.CallbackQuery, callback_data: dict, state: F
     keyboard.add(inline_button_edit)
     keyboard.add(inline_button_delete)
 
-    await call.message.answer(f"Выбранные параметры сайт-\"{callback_data_['site']}\" запрос-\"{query['query']}\"",
+    await call.message.answer(f"Какие действия Вы хотели бы совершить в отношении запроса \"{query['query']}\" на "
+                              f"сайте \"{callback_data_['site']}\"",
                               reply_markup=keyboard)
     await call.answer()
 

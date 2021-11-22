@@ -24,12 +24,14 @@ async def kufar_query(message: types.Message, state: FSMContext):
     query_id = await KufarHandlerChain.add_query_to_storage(message.text, state)
     await state.reset_state(with_data=False)
     await scheduler_resume(state)
-    await message.answer(f"ваш запрос {message.text}",
-                         reply_markup=add_subscribe_keyboard({"site": KufarHandlerChain.site_name(),
-                                                              'query_id': query_id})
-                         )
     link = await KufarHandlerChain(None).get_last_query(query_id, message.text, state)
     link_message = "По вашему запросу ничего не найдено"
     if link:
-        link_message = f"Последний найденный результат по вашему запросу \n {link}"
-    await message.answer(link_message)
+        link_message = f"Это последнее из объявлений, которое я нашёл по Вашему запросу, Для того, чтобы продолжить " \
+                       f"получать актуальную информацию об объявлениях по запросу {message.text}, " \
+                       f"нажмите подписаться на запрос. \n " \
+                       f"{link} "
+    await message.answer(link_message,
+                         reply_markup=add_subscribe_keyboard({"site": KufarHandlerChain.site_name(),
+                                                              'query_id': query_id})
+                         )

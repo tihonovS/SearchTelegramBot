@@ -43,23 +43,28 @@ async def add_query(message: types.Message, state: FSMContext):
 async def view_storage(message: types.Message, state: FSMContext):
     data_: dict = await state.get_data()
     msg = "Ваши запросы: \n"
+    has_query = False
     for site_key, site_value in data_['site'].items():
         if isinstance(site_value, list):
             value_text = ""
             for value in site_value:
+                has_query = True
                 subscribed_text = "не подписаны на запрос"
                 if 'subscribed' in value and value['subscribed']:
                     subscribed_text = "подписаны на запрос"
                 value_text += f"       {value['query']} \-\- {subscribed_text}\n"
             msg += text(f" {bold(site_key)}", value_text, sep="\n")
-
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    inline_button = types.InlineKeyboardButton(
-        text="Редактировать",
-        callback_data=callback_action.new(action="edit_store")
-    )
-    keyboard.add(inline_button)
-    await message.answer(msg, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=keyboard)
+    if has_query:
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        inline_button = types.InlineKeyboardButton(
+            text="Редактировать",
+            callback_data=callback_action.new(action="edit_store")
+        )
+        keyboard.add(inline_button)
+        await message.answer(msg, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=keyboard)
+    else:
+        await message.answer("У вас нету новых запросов. \n"
+                             "Их можно добавить коммандой /add_query")
 
 
 @dp.message_handler(commands="start", state="*")
@@ -70,5 +75,5 @@ async def send_welcome(message: types.Message, state: FSMContext):
     if "site" not in storage:
         storage['site'] = {}
     await state.set_data(storage)
-    await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах." +
-                         " Для начала ввода первого запроса нажмите /add_query")
+    await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах. "
+                         "Для начала ввода первого запроса нажмите /add_query")

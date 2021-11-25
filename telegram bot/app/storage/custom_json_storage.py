@@ -15,4 +15,4 @@ class CustomJSONStorage(_FileStorage):
 
     def write(self, path: pathlib.Path):
         with path.open('w', encoding='utf8') as f:
-            return json.dump(self.data, f, indent=4, ensure_ascii=False)
+            return json.dump(self.data, f, indent=4, ensure_ascii=False, default=str)

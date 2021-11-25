@@ -22,7 +22,7 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
         request = await storage.get_data(chat=chat_id, user=user_id)
         site_ = request['site']
         if KufarHandlerChain.site_name() in site_:
-            kufar_array = request.get(KufarHandlerChain.site_name())
+            kufar_array = site_.get(KufarHandlerChain.site_name())
             for kufar in kufar_array:
                 if "subscribed" in kufar:
                     kufar_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))
@@ -77,14 +77,15 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
             for elem in response_elements:
                 response_time = datetime.strptime(elem.get('list_time'), '%Y-%m-%dT%H:%M:%SZ')
                 if saved_time < response_time:
-                    result.append({'time': response_time, 'link': elem.get('ad_link')})
+                    result.append({'time': response_time.isoformat(), 'link': elem.get('ad_link')})
             if len(result) > 0:
                 sorted(result, key=operator.itemgetter('time'), reverse=True)
                 return result
             elif not date:
                 last_response_elem = sorted(response_elements, key=operator.itemgetter('list_time'), reverse=True)[0]
-                return [{'time': last_response_elem.get('list_time'), 'link': last_response_elem.get('ad_link')}]
+                response_time = datetime.strptime(last_response_elem.get('list_time'), '%Y-%m-%dT%H:%M:%SZ')
+                return [{'time': response_time.isoformat(), 'link': last_response_elem.get('ad_link')}]
         else:
             if not date:
-                return [{'time': saved_time}]
+                return [{'time': saved_time.isoformat()}]
             return []

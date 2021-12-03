@@ -7,6 +7,7 @@ from app.middleware.query_id_middlervare import QueryIdMiddleware
 from loader import bot, dp, async_scheduler
 from app.kufar import kufar_hendlers
 from app.storage import storage_handler
+from app.onliner import onliner_catalog_hendlers
 from app.kufar import kufar_chain
 
 

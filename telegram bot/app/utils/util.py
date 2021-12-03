@@ -14,20 +14,20 @@ def delete_keys_from_dict(dictionary, keys):
     return modified_dict
 
 
-def get_query(search_dict, query_id) -> dict:
+def get_query_from_storage(search_dict, query_id) -> dict:
     for key, value in search_dict.items():
 
         if key == "query_id" and value == query_id:
             return search_dict
 
         elif isinstance(value, dict):
-            result = get_query(value, query_id)
+            result = get_query_from_storage(value, query_id)
             if result:
                 return result
 
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    result = get_query(item, query_id)
+                    result = get_query_from_storage(item, query_id)
                     if result:
                         return result

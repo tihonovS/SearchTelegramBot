@@ -32,7 +32,7 @@ async def add_query(message: types.Message, state: FSMContext):
     for clazz in AbstractHandlerChain.__subclasses__():
         inline_button = types.InlineKeyboardButton(
             text=clazz.site_name(),
-            callback_data=callback_action.new(action=clazz.site_name())
+            callback_data=callback_action.new(action=clazz.action_name())
         )
         buttons.append(inline_button)
     keyboard.add(*buttons)

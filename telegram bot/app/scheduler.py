@@ -5,11 +5,11 @@ import ast
 from loader import callback_action_with_data, dp, async_scheduler
 
 
-def add_subscribe_keyboard(query_data: dict):
+def add_subscribe_keyboard(query_id):
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     inline_button = types.InlineKeyboardButton(
         text="подписаться на запрос",
-        callback_data=callback_action_with_data.new(action='subscribe', data=query_data)
+        callback_data=callback_action_with_data.new(action='subscribe', data={'query_id': query_id})
     )
     keyboard.add(inline_button)
     return keyboard
@@ -26,10 +26,11 @@ async def subscribe_on_query(call: types.CallbackQuery, callback_data: dict, sta
 
 async def add_scheduler_to_store(callback_data: dict, state: FSMContext):
     storage: dict = await state.get_data()
-    site: list = storage['site'].get(callback_data.get('site'))
-    for item in site:
-        if item.get('query_id') == callback_data.get('query_id'):
-            item['subscribed'] = True
+    sites: dict = storage['site']
+    for key, value in sites.items():
+        for item in value:
+            if item.get('query_id') == callback_data.get('query_id'):
+                item['subscribed'] = True
     await state.set_data(storage)
 
 

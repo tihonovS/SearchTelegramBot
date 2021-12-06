@@ -21,6 +21,12 @@ class AbstractHandlerChain(ABC):
     def site_name():
         pass
 
+    @staticmethod
+    @abstractmethod
+    def action_name():
+        """короткое имя для колбэков 5 символов"""
+        pass
+
     @abstractmethod
     async def search_request(self, query, date: datetime = None) -> list:
         """

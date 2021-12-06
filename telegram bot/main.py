@@ -7,7 +7,7 @@ from app.middleware.query_id_middlervare import QueryIdMiddleware
 from loader import bot, dp, async_scheduler
 from app.kufar import kufar_hendlers
 from app.storage import storage_handler
-from app.onliner import onliner_catalog_hendlers
+from app.onliner import onliner_offers_hendlers
 from app.kufar import kufar_chain
 
 
@@ -21,7 +21,7 @@ async def on_startup(dispatcher: Dispatcher):
     for key, value in dispatcher.storage.data.items():
         for key1, value1 in value.items():
             func_args = [key, key1, chain, dispatcher.storage]
-            job = async_scheduler.add_job(call_chain, 'interval', minutes=1, args=func_args)
+            job = async_scheduler.add_job(call_chain, 'interval', minutes=5, args=func_args)
             value1['data']['scheduler_job_id'] = job.id
     dispatcher.setup_middleware(QueryIdMiddleware())
     async_scheduler.start()

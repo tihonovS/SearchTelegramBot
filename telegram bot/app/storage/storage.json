@@ -1,20 +1,2 @@
 {
-    "932954788": {
-        "932954788": {
-            "state": null,
-            "data": {
-                "last_query_id": 1,
-                "site": {
-                    "kufar.by": [
-                        {
-                            "query": "kenetic",
-                            "query_id": 1
-                        }
-                    ]
-                },
-                "scheduler_job_id": "756cc76b20964441ba96aae1872a5a9e"
-            },
-            "bucket": {}
-        }
-    }
 }

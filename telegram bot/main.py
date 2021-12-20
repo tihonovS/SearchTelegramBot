@@ -1,5 +1,6 @@
 from aiogram import Dispatcher
 from aiogram.utils import executor
+import logging
 
 from app import init_hendlers
 from app.chain import call_chain
@@ -21,7 +22,7 @@ async def on_startup(dispatcher: Dispatcher):
     for key, value in dispatcher.storage.data.items():
         for key1, value1 in value.items():
             func_args = [key, key1, chain, dispatcher.storage]
-            job = async_scheduler.add_job(call_chain, 'interval', minutes=5, args=func_args)
+            job = async_scheduler.add_job(call_chain, 'interval', minutes=30, args=func_args)
             value1['data']['scheduler_job_id'] = job.id
     dispatcher.setup_middleware(QueryIdMiddleware())
     async_scheduler.start()
@@ -30,6 +31,7 @@ async def on_startup(dispatcher: Dispatcher):
 
 
 async def on_shutdown(dispatcher: Dispatcher):
+    logging.info("shutdown app")
     for key, value in dispatcher.storage.data.items():
         for key1, value1 in value.items():
             value1['state'] = None

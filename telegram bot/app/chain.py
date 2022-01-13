@@ -10,7 +10,6 @@ from app.storage.custom_json_storage import CustomJSONStorage
 
 class AbstractHandlerChain(ABC):
     _next_handler = None
-    _session: aiohttp.ClientSession() = aiohttp.ClientSession()
 
     @abstractmethod
     def __init__(self, bot: Bot):
@@ -56,7 +55,8 @@ class AbstractHandlerChain(ABC):
     async def get_request(self, query: str, params=None) -> dict:
         if params is None:
             params = {}
-        async with self._session.get(query, params=params) as resp:
+        async with aiohttp.ClientSession() as session:
+            resp = await session.get(query, params=params)
             if resp.status == 200:
                 return await resp.json()
 

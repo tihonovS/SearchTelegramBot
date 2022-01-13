@@ -14,7 +14,7 @@ if not bot_token:
     exit("Error: no token provided")
 
 bot = Bot(bot_token)
-dp = Dispatcher(bot, storage=CustomJSONStorage(pathlib.Path("/app/telegram bot/app/storage/storage.json")))
+dp = Dispatcher(bot, storage=CustomJSONStorage(pathlib.Path("app/storage/storage.json")))
 
 callback_action = CallbackData("fabnum", "action")
 callback_action_with_data = CallbackData("key", "action", 'data', sep='::')

@@ -24,7 +24,7 @@ class KufarHandlerChain(abstract_chain.AbstractHandlerChain):
         if not date:
             saved_time = datetime.now()
         if isinstance(date, str):
-            saved_time = datetime.strptime(date)
+            saved_time = datetime.fromisoformat(date)
 
         response = await super().get_request(
             "https://cre-api-v2.kufar.by/items-search/v1/engine/v1/search/rendered-paginated",

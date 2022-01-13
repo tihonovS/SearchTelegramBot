@@ -8,7 +8,8 @@ from aiogram.utils.callback_data import CallbackData
 
 from app.storage.custom_json_storage import CustomJSONStorage
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename='log.log', filemode='a',
+                    datefmt='%H:%M:%S', level=logging.INFO)
 bot_token = getenv("BOT_TOKEN")
 if not bot_token:
     exit("Error: no token provided")

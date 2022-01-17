@@ -1,11 +1,11 @@
-from aiogram import Bot, types
+from aiogram import Bot, types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ParseMode
 from aiogram.utils.markdown import text, bold
 
-from app.chain import AbstractHandlerChain
-from loader import dp, callback_action
-from .scheduler import scheduler_resume, scheduler_pause
+from app.chain import AbstractHandlerChain, call_chain
+from loader import dp, callback_action, async_scheduler
+from .scheduler import scheduler_resume, scheduler_pause, add_scheduler_job
 
 
 async def set_commands(bot: Bot):
@@ -74,6 +74,9 @@ async def send_welcome(message: types.Message, state: FSMContext):
         storage['last_query_id'] = 0
     if "site" not in storage:
         storage['site'] = {}
+    await state.set_data(storage)
+    scheduler_job_id = await add_scheduler_job(message.from_user.id, message.chat.id, dp.storage)
+    storage['scheduler_job_id'] = scheduler_job_id
     await state.set_data(storage)
     await message.answer("Привет, я покажу последние объявления о необходимых тебе товарах. "
                          "Для начала ввода первого запроса нажмите /add_query")

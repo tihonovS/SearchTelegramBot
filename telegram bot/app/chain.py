@@ -6,10 +6,10 @@ from datetime import datetime
 from app.utils.util import get_query_from_storage
 
 from app.storage.custom_json_storage import CustomJSONStorage
+from loader import bot
 
 
 class AbstractHandlerChain(ABC):
-    _next_handler = None
 
     @abstractmethod
     def __init__(self, bot: Bot):
@@ -34,10 +34,6 @@ class AbstractHandlerChain(ABC):
         :return: {"time": ***, "link": ***}
         """
         pass
-
-    def set_next(self, handler):
-        self._next_handler = handler
-        return handler
 
     async def add_query_to_storage(self, query: str, state: FSMContext) -> str:
         data = await state.get_data()
@@ -64,19 +60,17 @@ class AbstractHandlerChain(ABC):
         request = await storage.get_data(chat=chat_id, user=user_id)
         site_ = request['site']
         if self.site_name() in site_:
-            kufar_array = site_.get(self.site_name())
-            for kufar in kufar_array:
+            site_array = site_.get(self.site_name())
+            for kufar in site_array:
                 if "subscribed" in kufar:
-                    kufar_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))
-                    if kufar_request:
-                        kufar['last_request_time'] = kufar_request[0].get('time')
-                        for item in kufar_request:
+                    site_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))
+                    if site_request:
+                        kufar['last_request_time'] = site_request[0].get('time')
+                        for item in site_request:
                             if 'link' in item:
                                 await self.bot.send_message(chat_id, item.get('link'))
 
             await storage.set_data(chat=chat_id, user=user_id, data=request)
-        if self._next_handler:
-            return await self._next_handler.handle(storage, chat_id, user_id)
         return None
 
     async def get_last_query(self, query_id, query, state: FSMContext):
@@ -91,5 +85,7 @@ class AbstractHandlerChain(ABC):
                 return last_request.get('link')
 
 
-async def call_chain(chat_id, user_id, handler: AbstractHandlerChain, storage: CustomJSONStorage):
-    await handler.handle(storage, chat_id, user_id)
+async def call_chain(chat_id, user_id, storage: CustomJSONStorage):
+    for clazz in AbstractHandlerChain.__subclasses__():
+        await clazz(bot).handle(storage, chat_id, user_id)
+

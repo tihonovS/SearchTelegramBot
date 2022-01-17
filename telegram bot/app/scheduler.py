@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 import ast
 
+from app.chain import call_chain
 from loader import callback_action_with_data, dp, async_scheduler
 
 
@@ -46,3 +47,9 @@ async def scheduler_resume(state: FSMContext):
     if 'scheduler_job_id' in storage:
         job = async_scheduler.get_job(storage['scheduler_job_id'])
         job.resume()
+
+
+async def add_scheduler_job(user_id, chat_id, storage):
+    func_args = [chat_id, user_id, storage]
+    job = async_scheduler.add_job(call_chain, 'interval', minutes=1, args=func_args)
+    return job.id

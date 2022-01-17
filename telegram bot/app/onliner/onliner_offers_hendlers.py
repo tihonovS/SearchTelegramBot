@@ -14,7 +14,9 @@ class OnlinerOffersState(StatesGroup):
 @dp.callback_query_handler(callback_action.filter(action=OnlinerOffersHandlerChain.action_name()))
 async def onliner_offers_start(call: types.CallbackQuery, callback_data: dict):
     await call.message.delete_reply_markup()
-    await call.message.answer(f"что будем искать на {OnlinerOffersHandlerChain.site_name()}")
+    await call.message.answer(f"что будем искать на {OnlinerOffersHandlerChain.site_name()}. "
+                              f"Для поиска нужно скопировать ссылку на товар. Должна быть открыта вкладка "
+                              f"'Описание и фото'")
     await OnlinerOffersState.waiting_for_query.set()
     await call.answer()
 

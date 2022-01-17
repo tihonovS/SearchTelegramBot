@@ -23,11 +23,10 @@ class OnlinerOffersHandlerChain(abstract_chain.AbstractHandlerChain):
 
     async def search_request(self, query, date: datetime = None) -> list:
         saved_time = datetime.now()
-        datetime_format = '%Y-%m-%dT%H:%M:%S+03:00'
         if not date:
             saved_time = datetime.now()
         if isinstance(date, str):
-            saved_time = datetime.strptime(date, datetime_format)
+            saved_time = datetime.fromisoformat(date)
         search = re.search(r"/(\w+)$", query)
         if search:
             response = await super().get_request(
@@ -37,6 +36,7 @@ class OnlinerOffersHandlerChain(abstract_chain.AbstractHandlerChain):
                 response_elements = response['offers']
                 if len(response_elements) > 0:
                     result = []
+                    datetime_format = '%Y-%m-%dT%H:%M:%S+03:00'
                     for elem in response_elements:
                         response_time = datetime.strptime(elem.get('last_up_at'), datetime_format)
                         if saved_time < response_time:

@@ -40,10 +40,10 @@ class AbstractHandlerChain(ABC):
         site_ = data['site']
         query_id = data['last_query_id']
         # нужно добавить обязательный параметр query и query_id
-        if self.site_name() in site_:
-            site_.get(self.site_name()).append({"query": query, "query_id": query_id})
+        if self.action_name() in site_:
+            site_.get(self.action_name()).append({"query": query, "query_id": query_id})
         else:
-            site_.update({self.site_name(): [{"query": query, "query_id": query_id}]})
+            site_.update({self.action_name(): [{"query": query, "query_id": query_id}]})
 
         await state.set_data(data)
         return query_id
@@ -59,8 +59,8 @@ class AbstractHandlerChain(ABC):
     async def handle(self, storage: CustomJSONStorage, chat_id, user_id):
         request = await storage.get_data(chat=chat_id, user=user_id)
         site_ = request['site']
-        if self.site_name() in site_:
-            site_array = site_.get(self.site_name())
+        if self.action_name() in site_:
+            site_array = site_.get(self.action_name())
             for kufar in site_array:
                 if "subscribed" in kufar:
                     site_request = await self.search_request(kufar.get("query"), kufar.get('last_request_time'))

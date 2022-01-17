@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 import ast
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
+from app.chain import AbstractHandlerChain
 from loader import dp, callback_action, callback_action_with_data
 from app.scheduler import scheduler_pause, scheduler_resume
 
@@ -19,17 +20,20 @@ async def choose_site_from_store(call: types.CallbackQuery, state: FSMContext):
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     buttons = []
     for key, value in data_['site'].items():
-        inline_button = types.InlineKeyboardButton(
-            text=key,
-            callback_data=callback_action_with_data.new(action="choose_store_site", data={"site": key})
-        )
-        buttons.append(inline_button)
+        for clazz in AbstractHandlerChain.__subclasses__():
+            if clazz.action_name() == key:
+                inline_button = types.InlineKeyboardButton(
+                    text=clazz.site_name(),
+                    #     csc == choose_store_site
+                    callback_data=callback_action_with_data.new(action="csc", data={"site": key})
+                )
+                buttons.append(inline_button)
     keyboard.add(*buttons)
     await call.message.answer("выберите сайт", reply_markup=keyboard)
     await call.answer()
 
 
-@dp.callback_query_handler(callback_action_with_data.filter(action="choose_store_site"))
+@dp.callback_query_handler(callback_action_with_data.filter(action="csc"))
 async def choose_query_from_store(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.message.delete()
     storage = await state.get_data()

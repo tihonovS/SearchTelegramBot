@@ -1,7 +1,7 @@
 from aiogram import Bot, types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ParseMode
-from aiogram.utils.markdown import text, bold
+from aiogram.utils.markdown import text, bold, escape_md
 
 from app.chain import AbstractHandlerChain, call_chain
 from loader import dp, callback_action, async_scheduler
@@ -52,8 +52,10 @@ async def view_storage(message: types.Message, state: FSMContext):
                 subscribed_text = "не подписаны на запрос"
                 if 'subscribed' in value and value['subscribed']:
                     subscribed_text = "подписаны на запрос"
-                value_text += f"       {value['query']} \-\- {subscribed_text}\n"
-            msg += text(f" {bold(site_key)}", value_text, sep="\n")
+                value_text += f"       {value['query']} -- {subscribed_text}\n"
+            for clazz in AbstractHandlerChain.__subclasses__():
+                if clazz.action_name() == site_key:
+                    msg += text(bold(clazz.site_name()), escape_md(value_text, '\\'), sep="\n")
     if has_query:
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         inline_button = types.InlineKeyboardButton(
@@ -61,7 +63,8 @@ async def view_storage(message: types.Message, state: FSMContext):
             callback_data=callback_action.new(action="edit_store")
         )
         keyboard.add(inline_button)
-        await message.answer(msg, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=keyboard)
+        await message.answer(msg.replace("\\\\", ""), parse_mode=ParseMode.MARKDOWN_V2, reply_markup=keyboard,
+                             disable_web_page_preview=True)
     else:
         await message.answer("У вас нету новых запросов. \n"
                              "Их можно добавить коммандой /add_query")

@@ -40,7 +40,9 @@ class OnlinerOffersHandlerChain(abstract_chain.AbstractHandlerChain):
                     for elem in response_elements:
                         response_time = datetime.strptime(elem.get('last_up_at'), datetime_format)
                         if saved_time < response_time:
-                            result.append(self._search_request_object(response_time, query + "/used/" + elem.get('id')))
+                            result.append(self._search_request_object(response_time,
+                                                                      query + "/used/" + str(elem.get('id')))
+                                          )
                     if len(result) > 0:
                         sorted(result, key=operator.itemgetter('time'), reverse=True)
                         return result

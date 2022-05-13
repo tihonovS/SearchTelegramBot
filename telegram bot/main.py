@@ -17,6 +17,8 @@ async def on_startup(dispatcher: Dispatcher):
         for user_id, value1 in value.items():
             scheduler_job_id = await add_scheduler_job(user_id, chat_id, dispatcher.storage)
             value1['data']['scheduler_job_id'] = scheduler_job_id
+            if not value1['data']['site']:
+                value1['data']['site'] = {}
     dispatcher.setup_middleware(QueryIdMiddleware())
     async_scheduler.start()
 
